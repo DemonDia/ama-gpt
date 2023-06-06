@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 // show profile if logged in
-import { Link } from "react-router-dom";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { auth } from "../../firebaseConfig";
+import { Link, useNavigate } from "react-router-dom";
 import {
     AppBar,
     Box,
@@ -14,10 +16,15 @@ import {
     Toolbar,
     Typography,
     Button,
+    Menu,
+    MenuItem,
+    Tooltip,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import logo from "../../pictures/AMAGPT copy.png";
+import defaultProfilePic from "../../pictures/defaultProfilePicture.png";
 // import {MenuIcon} from "@mui/material/icons";
+import toast, { Toaster } from "react-hot-toast";
 const drawerWidth = 240;
 const pages = [
     {
@@ -32,11 +39,36 @@ const pages = [
 
 function Navbar(props) {
     const { window } = props;
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [currUser, setCurrUser] = useState(null);
     const [mobileOpen, setMobileOpen] = useState(false);
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
     };
+
+    const [anchorElUser, setAnchorElUser] = React.useState(null);
+    const handleOpenUserMenu = (event) => {
+        setAnchorElUser(event.currentTarget);
+    };
+    const handleCloseUserMenu = () => {
+        setAnchorElUser(null);
+    };
+
+    const nav = useNavigate();
+
+    useEffect(() => {
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                setCurrUser(user);
+                console.log(user);
+                localStorage.setItem("userId", user.uid);
+                nav("/");
+            } else {
+                setCurrUser(null);
+                localStorage.removeItem("userId");
+            }
+        });
+    }, []);
+    const ref = useRef(null);
 
     const drawer = (
         <Box
@@ -68,29 +100,68 @@ function Navbar(props) {
                         </ListItem>
                     );
                 })}
-                <ListItem disablePadding>
-                    <Link
-                        to={"/login"}
-                        style={{
-                            textDecoration: "none",
-                            color: "black",
-                            width: "100%",
-                        }}
-                    >
-                        <ListItemButton sx={{ textAlign: "left" }}>
-                            <ListItemText primary={"Login"} />
-                        </ListItemButton>
-                    </Link>
+                <ListItem>
+                    {currUser ? (
+                        <>{currUser.displayName}</>
+                    ) : (
+                        <>
+                            {" "}
+                            <Link
+                                to={"/login"}
+                                style={{
+                                    textDecoration: "none",
+                                    color: "black",
+                                    width: "100%",
+                                }}
+                            >
+                                <ListItemButton sx={{ textAlign: "left" }}>
+                                    <ListItemText primary={"Login"} />
+                                </ListItemButton>
+                            </Link>
+                        </>
+                    )}
                 </ListItem>
             </List>
         </Box>
     );
 
+    const handleLogout = () => {
+        signOut(auth)
+            .then(() => {
+                toast("Logged out");
+                nav("/login");
+                // Sign-out successful.
+            })
+            .catch((error) => {
+                // An error happened.
+                toast("Something went wrong. Please try again later");
+            });
+    };
+
+    const emptyClickFunction = () => {};
+
+    const goToProfile = () => {
+        nav("/profile");
+    };
+
     const container =
         window !== undefined ? () => window().document.body : undefined;
 
+    const profileItems = [
+        {
+            label: currUser
+                ? currUser.displayName
+                    ? currUser.displayName
+                    : "User"
+                : "",
+            handleClick: emptyClickFunction,
+        },
+        { label: "Profile", handleClick: goToProfile },
+        { label: "Logout", handleClick: handleLogout },
+    ];
     return (
         <Box sx={{ display: "flex" }}>
+            <Toaster />
             <AppBar
                 component="nav"
                 sx={{ background: "white", color: "black" }}
@@ -142,20 +213,84 @@ function Navbar(props) {
                                 </Link>
                             );
                         })}
-                        <Link to="/login">
-                            <Button
-                                sx={{
-                                    color: "white",
-                                    background: "#08C5AE",
-                                    float: "right",
-                                    "&:hover": {
-                                        background: "#089786",
-                                    },
-                                }}
-                            >
-                                Login
-                            </Button>
-                        </Link>
+                        {currUser ? (
+                            <>
+                                <Box sx={{ flexGrow: 0, float: "right" }}>
+                                    <Tooltip title="Profile">
+                                        <IconButton
+                                            onClick={handleOpenUserMenu}
+                                            sx={{ p: 0 }}
+                                        >
+                                            <img
+                                                alt="Profile Picture"
+                                                src={
+                                                    currUser.photoURL
+                                                        ? currUser.photoURL
+                                                        : defaultProfilePic
+                                                }
+                                                style={{
+                                                    borderRadius: "50%",
+                                                    maxHeight: "40px",
+                                                    maxWidth: "40px",
+                                                }}
+                                            />
+                                        </IconButton>
+                                    </Tooltip>
+                                    <Menu
+                                        sx={{ mt: "45px" }}
+                                        id="menu-appbar"
+                                        anchorEl={anchorElUser}
+                                        anchorOrigin={{
+                                            vertical: "top",
+                                            horizontal: "right",
+                                        }}
+                                        keepMounted
+                                        transformOrigin={{
+                                            vertical: "top",
+                                            horizontal: "right",
+                                        }}
+                                        open={Boolean(anchorElUser)}
+                                        onClose={handleCloseUserMenu}
+                                    >
+                                        {profileItems.map((profileItem) => {
+                                            const { label, handleClick } =
+                                                profileItem;
+                                            return (
+                                                <MenuItem
+                                                    key={label}
+                                                    onClick={() => {
+                                                        handleCloseUserMenu();
+                                                        handleClick();
+                                                    }}
+                                                >
+                                                    <Typography textAlign="center">
+                                                        {label}
+                                                    </Typography>
+                                                </MenuItem>
+                                            );
+                                        })}
+                                    </Menu>
+                                </Box>
+                            </>
+                        ) : (
+                            <>
+                                {" "}
+                                <Link to="/login">
+                                    <Button
+                                        sx={{
+                                            color: "white",
+                                            background: "#08C5AE",
+                                            float: "right",
+                                            "&:hover": {
+                                                background: "#089786",
+                                            },
+                                        }}
+                                    >
+                                        Login
+                                    </Button>
+                                </Link>
+                            </>
+                        )}
                     </Box>
                 </Toolbar>
             </AppBar>
