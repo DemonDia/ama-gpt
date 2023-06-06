@@ -3,7 +3,26 @@ import logo from "../pictures/AMAGPT copy.png";
 import leftCharacter from "../pictures/Hayate_Stamp.png";
 import rightCharacter from "../pictures/kokoasama.png";
 import { Typography, Box } from "@mui/material";
+import KeyFeature from "../components/landing/KeyFeature";
+
 function LandingPage() {
+    const keyFeatures = [
+        {
+            title: "AMA",
+            description:
+                "Need a portable buddy to answer your questions on the go?",
+            redirect: "/ama",
+            id: "#ama",
+            image: "",
+        },
+        {
+            title: "Image generator",
+            description: "Need any image any time? For any purpose?",
+            redirect: "/image-generator",
+            id: "#image-generator",
+            image: "",
+        },
+    ];
     return (
         <Box
             sx={{
@@ -38,6 +57,19 @@ function LandingPage() {
                     Try us for free today!
                 </Typography>
             </Box>
+            {keyFeatures.map((item, index) => {
+                const { title, description, redirect, id, image } = item;
+                const titleDisplay = index + 1 + ". " + title;
+                return (
+                    <KeyFeature
+                        title={titleDisplay}
+                        description={description}
+                        redirect={redirect}
+                        id={id}
+                        image={image}
+                    />
+                );
+            })}
         </Box>
     );
 }
