@@ -8,9 +8,12 @@ import "./App.css";
 import LandingPage from "./pages/LandingPage";
 
 // ====================================component imports====================================
+// ===============general===============
+import Navbar from "./components/general/Navbar";
 function App() {
     return (
         <div className="App">
+            <Navbar />
             <div className="pageContainer">
                 <Routes>
                     <Route path="/" element={<LandingPage />} />
