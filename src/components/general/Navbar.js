@@ -59,7 +59,6 @@ function Navbar(props) {
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 setCurrUser(user);
-                console.log(user);
                 localStorage.setItem("userId", user.uid);
                 nav("/");
             } else {

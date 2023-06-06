@@ -53,7 +53,6 @@ function RegistrationPage() {
                     }
                 })
                 .catch((err) => {
-                    console.log("err", err);
                     toast(err.message);
                 });
         }
