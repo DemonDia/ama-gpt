@@ -62,6 +62,7 @@ function LandingPage() {
                 const titleDisplay = index + 1 + ". " + title;
                 return (
                     <KeyFeature
+                        key={index}
                         title={titleDisplay}
                         description={description}
                         redirect={redirect}

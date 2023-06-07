@@ -60,7 +60,6 @@ function Navbar(props) {
             if (user) {
                 setCurrUser(user);
                 localStorage.setItem("userId", user.uid);
-                nav("/");
             } else {
                 setCurrUser(null);
                 localStorage.removeItem("userId");
@@ -231,8 +230,8 @@ function Navbar(props) {
                                     to={to}
                                     sx={{
                                         textDecoration: "none",
-                                        // color: "black",
                                     }}
+                                    key={index}
                                 >
                                     <Button
                                         sx={{
