@@ -79,6 +79,9 @@ function Navbar(props) {
             </Typography>
             <Divider />
             <List>
+                <ListItem>
+                    {currUser ? <>{currUser.displayName}</> : <></>}
+                </ListItem>
                 {pages.map((item, index) => {
                     const { label, to } = item;
 
@@ -99,14 +102,31 @@ function Navbar(props) {
                         </ListItem>
                     );
                 })}
-                <ListItem>
-                    {currUser ? (
-                        <>{currUser.displayName}</>
-                    ) : (
-                        <>
-                            {" "}
+                {!currUser ? (
+                    <Link
+                        to={"/login"}
+                        style={{
+                            textDecoration: "none",
+                            color: "black",
+                            width: "100%",
+                        }}
+                    >
+                        <ListItemButton sx={{ textAlign: "left" }}>
+                            <ListItemText primary={"Login"} />
+                        </ListItemButton>
+                    </Link>
+                ) : (
+                    <></>
+                )}
+                {currUser ? (
+                    <>
+                        <ListItem
+                            disablePadding
+                            onClick={() => {
+                                goToProfile();
+                            }}
+                        >
                             <Link
-                                to={"/login"}
                                 style={{
                                     textDecoration: "none",
                                     color: "black",
@@ -114,12 +134,32 @@ function Navbar(props) {
                                 }}
                             >
                                 <ListItemButton sx={{ textAlign: "left" }}>
-                                    <ListItemText primary={"Login"} />
+                                    Profile
                                 </ListItemButton>
                             </Link>
-                        </>
-                    )}
-                </ListItem>
+                        </ListItem>
+                        <ListItem
+                            disablePadding
+                            onClick={() => {
+                                handleLogout();
+                            }}
+                        >
+                            <Link
+                                style={{
+                                    textDecoration: "none",
+                                    color: "black",
+                                    width: "100%",
+                                }}
+                            >
+                                <ListItemButton sx={{ textAlign: "left" }}>
+                                    Logout
+                                </ListItemButton>
+                            </Link>
+                        </ListItem>
+                    </>
+                ) : (
+                    <></>
+                )}
             </List>
         </Box>
     );
