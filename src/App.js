@@ -12,6 +12,9 @@ import LandingPage from "./pages/LandingPage";
 import RegistrationPage from "./pages/authentication/RegistrationPage";
 import LoginPage from "./pages/authentication/LoginPage";
 
+// ===============AMA page===============
+import AMAPage from "./pages/AMAPage";
+
 // ====================================component imports====================================
 // ===============general===============
 import Navbar from "./components/general/Navbar";
@@ -23,8 +26,12 @@ function App() {
             <div className="pageContainer">
                 <Routes>
                     <Route path="/" element={<LandingPage />} />
+                    {/* authentication */}
                     <Route path="/register" element={<RegistrationPage />} />
                     <Route path="/login" element={<LoginPage />} />
+
+                    {/* ama */}
+                    <Route path="/ama" element={<AMAPage />} />
                 </Routes>
             </div>
         </div>
