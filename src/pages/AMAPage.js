@@ -15,14 +15,15 @@ function AMAPage() {
     const [currUserId, setCurrUserId] = useState(null);
     const [chats, setChats] = useState([]);
     const [currentChat, setCurrentChat] = useState(null);
+    const [currMessage, setCurrMessage] = useState("");
 
-    const selectChat = (selectedNewChat) => {
+    const selectChat = async (selectedNewChat) => {
         if (currentChat && currentChat.id == selectedNewChat.id) {
             setCurrentChat(null);
         } else {
             setCurrentChat(selectedNewChat);
             const getMessages = ref(db, "message/");
-            get(getMessages)
+            await get(getMessages)
                 .then((snapshot) => {
                     let messages = [];
                     if (snapshot.exists()) {
@@ -50,8 +51,6 @@ function AMAPage() {
                 });
         }
     };
-    const [currMessage, setCurrMessage] = useState("");
-
     const createNewChat = (chatName) => {
         let newChat = {
             chatName: chatName ? chatName : "New Chat",
@@ -63,16 +62,17 @@ function AMAPage() {
         tempChats.push(newChat);
         const createdChat = push(ref(db, "chat/"), newChat);
         get(createdChat)
-            .then((snapshot) => {
+            .then(async (snapshot) => {
                 if (snapshot.exists()) {
                     const data = snapshot.val();
                     const selectedChat = {
                         id: createdChat.key,
                         chatName: data.chatName,
                     };
-                    // then create message
+                    await sendMessageHelper(chatName, "user", createdChat.key);
                     selectChat(selectedChat);
-                    sendMessageHelper(chatName, "user", createdChat.key);
+
+                    // refreshChat(createNewChat.key);
                 }
             })
             .catch((error) => {
@@ -81,19 +81,21 @@ function AMAPage() {
 
         toast("Created");
     };
-    const sendMessageHelper = (message, role, chatId) => {
+    const sendMessageHelper = async (message, role, chatId) => {
         const newMessage = {
             role,
             content: message,
             chatId,
             sentDate: new Date().toISOString(),
         };
-        push(ref(db, "message/"), newMessage);
-        var messages = currentChat.messages;
-        // messages.push({ role, content: message });
-        setCurrentChat({
-            ...currentChat,
-            messages: [...messages, { role, content: message }],
+        await push(ref(db, "message/"), newMessage).then(() => {
+            var messages =
+                currentChat && currentChat.messages ? currentChat.messages : [];
+            messages.push({ role, content: message });
+            setCurrentChat({
+                ...currentChat,
+                messages,
+            });
         });
     };
     const sendMessage = (keycode) => {
@@ -109,6 +111,30 @@ function AMAPage() {
             setCurrMessage("");
         }
     };
+    const refreshChat = (chatId) => {
+        const getMessages = ref(db, "message/");
+        get(getMessages).then((snapshot) => {
+            let messages = [];
+            if (snapshot.exists()) {
+                let data = snapshot.val();
+                Object.keys(data).forEach((key) => {
+                    const currRecord = data[key];
+                    if (currRecord.chatId == chatId) {
+                        const { role, content } = data[key];
+                        const chatMessage = {
+                            role,
+                            content,
+                        };
+                        messages.push(chatMessage);
+                    }
+                });
+            }
+            setCurrentChat({
+                ...currentChat,
+                messages,
+            });
+        });
+    };
 
     useEffect(() => {
         onAuthStateChanged(auth, (user) => {
@@ -116,6 +142,79 @@ function AMAPage() {
                 nav("/login");
             }
             setCurrUserId(user.uid);
+            onValue(ref(db, "chat/"), (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    if (data) {
+                        let userChats = [];
+                        Object.keys(data).forEach((key) => {
+                            const currRecord = data[key];
+                            if (
+                                currRecord.userId == user.uid &&
+                                currRecord.type == "ama"
+                            ) {
+                                const { chatName, createdDate } = currRecord;
+                                const chatRecord = {
+                                    chatName,
+                                    createdDate,
+                                    id: key,
+                                };
+                                userChats.push(chatRecord);
+                            }
+                        });
+                        setChats(userChats);
+                    }
+                }
+            });
+            onValue(ref(db, "message/"), (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    if (data.hasOwnProperty("chat")) {
+                        let userChats = [];
+                        Object.keys(data).forEach((key) => {
+                            const currRecord = data[key];
+                            if (
+                                currRecord.userId == user.uid &&
+                                currRecord.type == "ama"
+                            ) {
+                                const { chatName, createdDate } = currRecord;
+                                const chatRecord = {
+                                    chatName,
+                                    createdDate,
+                                    id: key,
+                                };
+                                userChats.push(chatRecord);
+                            }
+                        });
+                        setChats(userChats);
+                    }
+                }
+            });
+
+            // onValue(ref(db), (snapshot) => {
+            //     const data = snapshot.val();
+            //     if (data) {
+            //         if (data.hasOwnProperty("chat")) {
+            //             let userChats = [];
+            //             Object.keys(data.chat).forEach((key) => {
+            //                 const currRecord = data.chat[key];
+            //                 if (
+            //                     currRecord.userId == user.uid &&
+            //                     currRecord.type == "ama"
+            //                 ) {
+            //                     const { chatName, createdDate } = currRecord;
+            //                     const chatRecord = {
+            //                         chatName,
+            //                         createdDate,
+            //                         id: key,
+            //                     };
+            //                     userChats.push(chatRecord);
+            //                 }
+            //             });
+            //             setChats(userChats);
+            //         }
+            //     }
+            // });
 
             // refactored
             onValue(ref(db), (snapshot) => {

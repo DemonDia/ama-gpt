@@ -31,7 +31,7 @@ function ChatComponent({
                         textOverflow: "ellipsis",
                     }}
                 >
-                    {currentChat ? (
+                    {currentChat && currentChat.chatName ? (
                         <>{currentChat.chatName}</>
                     ) : (
                         <>Select a chat</>
@@ -44,10 +44,12 @@ function ChatComponent({
                     background: "rgba(65, 65, 65, 0.1)",
                     boxShadow: "none",
                     overflowY: "scroll",
-                    display: "grid",
+                    height: "600px",
+                    display:
+                        currentChat && currentChat.messages ? "block" : "grid",
+                    justifyContent: "middle",
                 }}
             >
-                {" "}
                 {currentChat && currentChat.messages ? (
                     <>
                         {currentChat.messages.map((message, idx) => {

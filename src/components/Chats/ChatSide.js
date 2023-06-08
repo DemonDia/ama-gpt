@@ -6,52 +6,67 @@ function ChatSide({ chats, selectChat, selectedChat }) {
         <Box
             sx={{
                 marginTop: "10px",
-                // boxShadow: "0px 0px 4px rgba(0, 0, 0, 0.4)",
-                maxHeight: "800px",
                 overflowY: "scroll",
-                display: "grid",
+                height: "800px",
             }}
         >
             <Typography variant={"h5"}>Chats</Typography>
-            {chats.map((chat) => {
-                const { chatName, id } = chat;
-                return (
-                    <Button
-                        key={id}
-                        onClick={() => {
-                            selectChat({ chatName, id });
-                        }}
-                        variant={"contained"}
+            {chats && chats.length > 0 ? (
+                <>
+                    {chats.map((chat) => {
+                        const { chatName, id } = chat;
+                        return (
+                            <Button
+                                key={id}
+                                onClick={() => {
+                                    selectChat({ chatName, id });
+                                }}
+                                variant={"contained"}
+                                sx={{
+                                    height: "30px",
+                                    width: "90%",
+                                    textAlign: "left",
+                                    justifyContent: "start",
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    whiteSpace: "nowrap",
+                                    background:
+                                        selectedChat && selectedChat.id == id
+                                            ? "#08C5AE"
+                                            : "white",
+                                    color:
+                                        selectedChat && selectedChat.id == id
+                                            ? "white"
+                                            : "black",
+                                    // boxShadow:"none",
+                                    margin: "5px",
+                                    "&:hover": {
+                                        background:
+                                            selectedChat &&
+                                            selectedChat.id == id
+                                                ? "rgba(8, 197, 174, 0.7)"
+                                                : "rgba(250, 250, 250, 1)",
+                                    },
+                                }}
+                            >
+                                {chatName}
+                            </Button>
+                        );
+                    })}
+                </>
+            ) : (
+                <>
+                    <Box
                         sx={{
-                            height: "30px",
-                            width: "90%",
-                            textAlign: "left",
-                            justifyContent: "start",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                            background:
-                                selectedChat && selectedChat.id == id
-                                    ? "#08C5AE"
-                                    : "white",
-                            color:
-                                selectedChat && selectedChat.id == id
-                                    ? "white"
-                                    : "black",
-                            // boxShadow:"none",
-                            margin: "5px",
-                            "&:hover": {
-                                background:
-                                    selectedChat && selectedChat.id == id
-                                        ? "rgba(8, 197, 174, 0.7)"
-                                        : "rgba(250, 250, 250, 1)",
-                            },
+                            padding: "10px",
+                            background: "rgb(150 150 150 / 10%)",
+                            boxRadius: "5px",
                         }}
                     >
-                        {chatName}
-                    </Button>
-                );
-            })}
+                        <Typography variant={"h6"}>No chats yet</Typography>
+                    </Box>
+                </>
+            )}
         </Box>
     );
 }
