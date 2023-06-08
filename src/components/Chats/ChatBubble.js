@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 function ChatBubble({ message }) {
     const { content, role } = message;
     return (
@@ -18,8 +18,9 @@ function ChatBubble({ message }) {
                     margin: "5px",
                     padding: "5px",
                     borderRadius: "5px",
-                    width: "fit-content",
                     height: "fit-content",
+                    maxWidth: "60%",
+                    textAlign: "left",
                 }}
             >
                 {content}

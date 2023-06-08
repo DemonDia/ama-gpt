@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 // ==================== firebase ====================
-import { ref, onValue, push, get, query } from "firebase/database";
+import { ref, onValue, push, get } from "firebase/database";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../configurations/firebaseConfig";
 
@@ -22,6 +22,7 @@ function AMAPage() {
     const [chats, setChats] = useState([]);
     const [currentChat, setCurrentChat] = useState(null);
     const [currMessage, setCurrMessage] = useState("");
+    const [isTyping, setIsTyping] = useState(false);
 
     // ==================== helper functions ====================
     // sends a message (from the assistant/user) to the current chat
@@ -43,6 +44,74 @@ function AMAPage() {
         });
     };
 
+    const refreshChat = async (chosenChat) => {
+        const getMessages = ref(db, "message/");
+        await get(getMessages)
+            .then((snapshot) => {
+                let messages = [];
+                if (snapshot.exists()) {
+                    let data = snapshot.val();
+                    Object.keys(data).forEach((key) => {
+                        const currRecord = data[key];
+                        if (currRecord.chatId == chosenChat.id) {
+                            const { role, content } = data[key];
+                            const chatMessage = {
+                                role,
+                                content,
+                            };
+                            messages.push(chatMessage);
+                        }
+                    });
+                }
+                setCurrentChat({
+                    id: chosenChat.id,
+                    chatName: chosenChat.chatName,
+                    messages,
+                });
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    };
+
+    // trigger the openAI
+    // returns the message from openAI
+    const triggerOpenAI = async (chatMessages, selectedChat) => {
+        const systemMessage = {
+            //  Explain things like you're talking to a software professional with 5 years of experience.
+            role: "system",
+            content: "Explain things in layman terms",
+        };
+
+        const apiRequestBody = {
+            model: "gpt-3.5-turbo",
+            messages: [
+                systemMessage, // The system message DEFINES the logic of our chatGPT
+                ...chatMessages, // The messages from our chat with ChatGPT
+            ],
+        };
+
+        setIsTyping(true);
+        await fetch("https://api.openai.com/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                Authorization: "Bearer " + process.env.REACT_APP_OPENAI_API_KEY,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(apiRequestBody),
+        })
+            .then((data) => data.json())
+            .then(async (data) => {
+                const reply = data.choices[0].message.content;
+                setIsTyping(false);
+                await sendMessageHelper(reply, "system", selectedChat.id);
+            })
+            .catch((err) => {
+                setIsTyping(false);
+                toast("Something went wrong, please try again later");
+            });
+    };
+
     // ==================== main functions ====================
     // select existing chat
     const selectChat = async (selectedNewChat) => {
@@ -50,33 +119,7 @@ function AMAPage() {
             setCurrentChat(null);
         } else {
             setCurrentChat(selectedNewChat);
-            const getMessages = ref(db, "message/");
-            await get(getMessages)
-                .then((snapshot) => {
-                    let messages = [];
-                    if (snapshot.exists()) {
-                        let data = snapshot.val();
-                        Object.keys(data).forEach((key) => {
-                            const currRecord = data[key];
-                            if (currRecord.chatId == selectedNewChat.id) {
-                                const { role, content } = data[key];
-                                const chatMessage = {
-                                    role,
-                                    content,
-                                };
-                                messages.push(chatMessage);
-                            }
-                        });
-                    }
-                    setCurrentChat({
-                        id: selectedNewChat.id,
-                        chatName: selectedNewChat.chatName,
-                        messages,
-                    });
-                })
-                .catch((error) => {
-                    console.error(error);
-                });
+            await refreshChat(selectedNewChat);
         }
     };
 
@@ -98,11 +141,16 @@ function AMAPage() {
                     const selectedChat = {
                         id: createdChat.key,
                         chatName: data.chatName,
+                        messages: [],
                     };
                     await sendMessageHelper(chatName, "user", createdChat.key);
-                    selectChat(selectedChat);
-
-                    // refreshChat(createNewChat.key);
+                    await selectChat(selectedChat);
+                    // await refreshChat(selectedChat);
+                    await triggerOpenAI(
+                        [{ content: chatName, role: "user" }],
+                        selectedChat
+                    );
+                    await refreshChat(selectedChat);
                 }
             })
             .catch((error) => {
@@ -113,14 +161,21 @@ function AMAPage() {
     };
 
     // send message via enter
-    const sendMessage = (keycode) => {
+    const sendMessage = async (keycode) => {
         if (keycode === "Enter" && currMessage.length > 0) {
             if (!currentChat) {
                 // create new chat
                 createNewChat(currMessage);
             } else {
                 // message on existing chat
-                sendMessageHelper(currMessage, "user", currentChat.id);
+                await sendMessageHelper(currMessage, "user", currentChat.id);
+                await triggerOpenAI(
+                    [
+                        ...currentChat.messages,
+                        { content: currMessage, role: "user" },
+                    ],
+                    currentChat
+                );
             }
             toast("Message sent");
             setCurrMessage("");
@@ -205,6 +260,7 @@ function AMAPage() {
                         currMessage={currMessage}
                         setCurrMessage={setCurrMessage}
                         currentChat={currentChat}
+                        loading={isTyping}
                     />
                 </Grid>
             </Grid>
