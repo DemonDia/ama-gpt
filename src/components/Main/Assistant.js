@@ -1,10 +1,16 @@
 import React, { useState, useRef, useEffect } from "react";
 import AMASama from "../../pictures/luminasama.png";
-import { Badge, Box, Typography, Grid } from "@mui/material";
-import { characterOnClick, chatShow, imageGeneratorShow } from "./Dialogues";
+import { Box, Typography, Grid } from "@mui/material";
+import {
+    characterOnClick,
+    chatShow,
+    imageGeneratorShow,
+    isTypingMessages,
+    changeChat,
+} from "./Dialogues";
 
 import "./assistant.css";
-function Assistant({ reply, chats, isChatMode }) {
+function Assistant({ reply, isChatMode, isTyping, currentChat }) {
     // ================helper function================
     const displayMessage = (messageToDislay) => {
         if (ref) {
@@ -13,7 +19,6 @@ function Assistant({ reply, chats, isChatMode }) {
             setTimeout(function () {
                 if (ref.current) {
                     ref.current.classList.remove("responds");
-                    // setDialogue("");
                 }
             }, 2500);
         }
@@ -21,6 +26,14 @@ function Assistant({ reply, chats, isChatMode }) {
     // ================display random messages when================
     const ref = useRef();
     // change chat
+    // const chatChange = () => {
+    //     displayMessage(
+    //         changeChat[Math.floor(Math.random() * changeChat.length)]
+    //     );
+    // };
+    // useEffect(() => {
+    //     chatChange();
+    // }, [currentChat]);
 
     // clicked
     const clickedCharacter = () => {
@@ -32,6 +45,27 @@ function Assistant({ reply, chats, isChatMode }) {
     };
 
     // type out a short portion of the result prompt
+    const resultTriggered = (result) => {
+        displayMessage(result);
+    };
+    useEffect(() => {
+        resultTriggered(reply);
+    }, [reply]);
+
+    // if its typing
+    const isGeneratingResult = () => {
+        if (isTyping) {
+            displayMessage(
+                isTypingMessages[
+                    Math.floor(Math.random() * isTypingMessages.length)
+                ]
+            );
+        }
+    };
+    useEffect(() => {
+        isGeneratingResult();
+    }, [isTyping]);
+
     // if its AMA
     // if its not AMA, just say "Image is created!"
     const [dialogue, setDialogue] = useState("");
@@ -44,11 +78,6 @@ function Assistant({ reply, chats, isChatMode }) {
         <Box
             sx={{
                 margin: "10px",
-                // width: {
-                //     xs: "90%",
-                //     sm: "80%",
-                //     md: "40%",
-                // },
             }}
         >
             <Grid container>

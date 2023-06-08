@@ -2,6 +2,7 @@ export const characterOnClick = [
     "Hello master!",
     "Yes?",
     "Would you please say something?",
+    "You do know that you can ask me any questions right? Provided they are legal though :)"
 ];
 
 // export const characterOnClick = [
@@ -15,11 +16,22 @@ export const characterOnClick = [
     
 //     Suspendisse sollicitudin eu ex a commodo. Aenean vestibulum neque neque, sed luctus leo aliquet eu. Donec sit amet tortor tempor, fermentum nisi quis, posuere est. Morbi eget dolor eros. Donec a lacus et ligula pretium faucibus. Vestibulum ac lacinia felis. Proin condimentum erat quis tellus laoreet aliquam. Ut eget massa nibh. Sed blandit, urna nec aliquet bibendum, felis tellus viverra enim, in aliquet nulla ligula rutrum nisl.`,
 // ];
+export const isTypingMessages = [
+    "Generating response...",
+    "Thinking...",
+    "Hmm...",
+]
 
 export const chatShow = [
-    "Hello <guest>-san,what would you like to ask?",
+    "Hello masterr,what would you like to ask?",
     "Heyy, what is on your mind? Feel free to spill the tea!",
 ];
+
+export const changeChat = [
+    "Master ...what is it next time?",
+    "Hey, what is your new question?",
+    "Heyy, what are you up to this time?"
+]
 
 export const imageGeneratorShow = [
     "Hello, please describe the image you want me to create.",

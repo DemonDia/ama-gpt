@@ -23,6 +23,7 @@ function AMAPage() {
     const [currentChat, setCurrentChat] = useState(null);
     const [currMessage, setCurrMessage] = useState("");
     const [isTyping, setIsTyping] = useState(false);
+    const [reply, setReply] = useState("");
 
     // ==================== helper functions ====================
     // sends a message (from the assistant/user) to the current chat
@@ -103,6 +104,7 @@ function AMAPage() {
             .then((data) => data.json())
             .then(async (data) => {
                 const reply = data.choices[0].message.content;
+                setReply(reply);
                 setIsTyping(false);
                 await sendMessageHelper(reply, "system", selectedChat.id);
             })
@@ -163,6 +165,7 @@ function AMAPage() {
     // send message via enter
     const sendMessage = async (keycode) => {
         if (keycode === "Enter" && currMessage.length > 0) {
+            setCurrMessage("");
             if (!currentChat) {
                 // create new chat
                 createNewChat(currMessage);
@@ -178,7 +181,6 @@ function AMAPage() {
                 );
             }
             toast("Message sent");
-            setCurrMessage("");
         }
     };
 
@@ -244,7 +246,12 @@ function AMAPage() {
             <Toaster />
             <Grid container>
                 <Grid item xs={12} sm={12} md={4} lg={6}>
-                    <Assistant isChatMode={true} />
+                    <Assistant
+                        isChatMode={true}
+                        reply={reply}
+                        isTyping={isTyping}
+                        currentChat={currentChat}
+                    />
                 </Grid>
                 <Grid item xs={12} sm={12} md={3} lg={2}>
                     <ChatSide
