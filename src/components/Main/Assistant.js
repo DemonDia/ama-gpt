@@ -7,12 +7,10 @@ import "./assistant.css";
 function Assistant({ reply, chats, isChatMode }) {
     // ================helper function================
     const displayMessage = (messageToDislay) => {
-        console.log(ref);
         if (ref) {
             ref.current.classList.add("responds");
             setDialogue(messageToDislay);
             setTimeout(function () {
-                console.log("ref", ref);
                 if (ref.current) {
                     ref.current.classList.remove("responds");
                     // setDialogue("");

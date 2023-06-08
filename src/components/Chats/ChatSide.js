@@ -1,60 +1,58 @@
-import React from 'react';
+import React from "react";
 import { Box, Typography, Button } from "@mui/material";
 
-function ChatSide({createNewChat, chats, selectChat}) {
+function ChatSide({ chats, selectChat, selectedChat }) {
     return (
-        <Box sx={{ margin: "10px" }}>
-        <Typography variant={"h5"}>Chats</Typography>
-        <Button
-            onClick={() => {
-                createNewChat();
-            }}
-            variant={"contained"}
+        <Box
             sx={{
-                height: "30px",
-                width: "100%",
-                textAlign: "left",
-                background: "white",
-                color: "black",
-                fontWeight: "bold",
-                margin: "5px",
-                "&:hover": {
-                    background: "rgba(250, 250, 250, 1)",
-                },
+                marginTop: "10px",
+                // boxShadow: "0px 0px 4px rgba(0, 0, 0, 0.4)",
+                maxHeight: "800px",
+                overflowY: "scroll",
+                display: "grid",
             }}
         >
-            New Chat
-        </Button>
-        {chats.map((chat) => {
-            const { chatName, id } = chat;
-            return (
-                <Button
-                    onClick={() => {
-                        selectChat(id);
-                    }}
-                    variant={"contained"}
-                    sx={{
-                        height: "30px",
-                        width: "100%",
-                        textAlign: "left",
-                        justifyContent: "start",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                        background: "white",
-                        color: "black",
-                        margin: "5px",
-                        "&:hover": {
+            <Typography variant={"h5"}>Chats</Typography>
+            {chats.map((chat) => {
+                const { chatName, id } = chat;
+                return (
+                    <Button
+                        key={id}
+                        onClick={() => {
+                            selectChat({ chatName, id });
+                        }}
+                        variant={"contained"}
+                        sx={{
+                            height: "30px",
+                            width: "90%",
+                            textAlign: "left",
+                            justifyContent: "start",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
                             background:
-                                "rgba(250, 250, 250, 1)",
-                        },
-                    }}
-                >
-                    {chatName}
-                </Button>
-            );
-        })}
-    </Box>
+                                selectedChat && selectedChat.id == id
+                                    ? "#08C5AE"
+                                    : "white",
+                            color:
+                                selectedChat && selectedChat.id == id
+                                    ? "white"
+                                    : "black",
+                            // boxShadow:"none",
+                            margin: "5px",
+                            "&:hover": {
+                                background:
+                                    selectedChat && selectedChat.id == id
+                                        ? "rgba(8, 197, 174, 0.7)"
+                                        : "rgba(250, 250, 250, 1)",
+                            },
+                        }}
+                    >
+                        {chatName}
+                    </Button>
+                );
+            })}
+        </Box>
     );
 }
 
