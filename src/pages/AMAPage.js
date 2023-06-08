@@ -6,7 +6,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { Grid } from "@mui/material";
 
 import ChatSide from "../components/Chats/ChatSide";
-import { ref, onValue, push, get } from "firebase/database";
+import { ref, onValue, push, get, query } from "firebase/database";
 import { db } from "../firebaseConfig";
 import toast, { Toaster } from "react-hot-toast";
 import ChatComponent from "../components/Chats/ChatComponent";
@@ -111,30 +111,6 @@ function AMAPage() {
             setCurrMessage("");
         }
     };
-    const refreshChat = (chatId) => {
-        const getMessages = ref(db, "message/");
-        get(getMessages).then((snapshot) => {
-            let messages = [];
-            if (snapshot.exists()) {
-                let data = snapshot.val();
-                Object.keys(data).forEach((key) => {
-                    const currRecord = data[key];
-                    if (currRecord.chatId == chatId) {
-                        const { role, content } = data[key];
-                        const chatMessage = {
-                            role,
-                            content,
-                        };
-                        messages.push(chatMessage);
-                    }
-                });
-            }
-            setCurrentChat({
-                ...currentChat,
-                messages,
-            });
-        });
-    };
 
     useEffect(() => {
         onAuthStateChanged(auth, (user) => {
@@ -169,99 +145,29 @@ function AMAPage() {
             onValue(ref(db, "message/"), (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
-                    if (data.hasOwnProperty("chat")) {
-                        let userChats = [];
-                        Object.keys(data).forEach((key) => {
-                            const currRecord = data[key];
-                            if (
-                                currRecord.userId == user.uid &&
-                                currRecord.type == "ama"
-                            ) {
-                                const { chatName, createdDate } = currRecord;
-                                const chatRecord = {
-                                    chatName,
-                                    createdDate,
-                                    id: key,
-                                };
-                                userChats.push(chatRecord);
-                            }
-                        });
-                        setChats(userChats);
-                    }
-                }
-            });
-
-            // onValue(ref(db), (snapshot) => {
-            //     const data = snapshot.val();
-            //     if (data) {
-            //         if (data.hasOwnProperty("chat")) {
-            //             let userChats = [];
-            //             Object.keys(data.chat).forEach((key) => {
-            //                 const currRecord = data.chat[key];
-            //                 if (
-            //                     currRecord.userId == user.uid &&
-            //                     currRecord.type == "ama"
-            //                 ) {
-            //                     const { chatName, createdDate } = currRecord;
-            //                     const chatRecord = {
-            //                         chatName,
-            //                         createdDate,
-            //                         id: key,
-            //                     };
-            //                     userChats.push(chatRecord);
-            //                 }
-            //             });
-            //             setChats(userChats);
-            //         }
-            //     }
-            // });
-
-            // refactored
-            onValue(ref(db), (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    if (data.hasOwnProperty("chat")) {
-                        let userChats = [];
-                        Object.keys(data.chat).forEach((key) => {
-                            const currRecord = data.chat[key];
-                            if (
-                                currRecord.userId == user.uid &&
-                                currRecord.type == "ama"
-                            ) {
-                                const { chatName, createdDate } = currRecord;
-                                const chatRecord = {
-                                    chatName,
-                                    createdDate,
-                                    id: key,
-                                };
-                                userChats.push(chatRecord);
-                            }
-                        });
-                        setChats(userChats);
-                    }
-                    if (data.hasOwnProperty("message")) {
+                    if (currentChat) {
                         let messages = [];
-                        if (currentChat) {
-                            Object.keys(data.message).forEach((key) => {
-                                const currRecord = data.message[key];
-                                if (currRecord.chatId == currentChat.id) {
-                                    const { role, content } = data.message[key];
-                                    const chatMessage = {
-                                        role,
-                                        content,
-                                    };
-                                    messages.push(chatMessage);
-                                }
-                            });
-                            setCurrentChat({
-                                id: currentChat.id,
-                                chatName: currentChat.chatName,
-                                messages,
-                            });
-                        }
+                        Object.keys(data.message).forEach((key) => {
+                            const currRecord = data.message[key];
+                            if (currRecord.chatId == currentChat.id) {
+                                const { role, content } = data.message[key];
+                                const chatMessage = {
+                                    role,
+                                    content,
+                                };
+                                messages.push(chatMessage);
+                            }
+                        });
+                        setCurrentChat({
+                            id: currentChat.id,
+                            chatName: currentChat.chatName,
+                            messages,
+                        });
                     }
                 }
             });
+
+        
         });
     }, []);
     return (
