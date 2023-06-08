@@ -46,11 +46,11 @@ function Assistant({ reply, chats, isChatMode }) {
         <Box
             sx={{
                 margin: "10px",
-                width: {
-                    xs: "90%",
-                    sm: "80%",
-                    md: "40%",
-                },
+                // width: {
+                //     xs: "90%",
+                //     sm: "80%",
+                //     md: "40%",
+                // },
             }}
         >
             <Grid container>

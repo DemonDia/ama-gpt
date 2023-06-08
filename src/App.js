@@ -31,7 +31,7 @@ function App() {
                     <Route path="/login" element={<LoginPage />} />
 
                     {/* ama */}
-                    <Route path="/ama" element={<AMAPage />} />
+                    <Route exact path="/ama" element={<AMAPage />} />
                 </Routes>
             </div>
         </div>

@@ -36,3 +36,7 @@
     transform: rotate(360deg);
   }
 }
+
+.MuiButton-contained {
+  text-transform: initial !important;
+}
