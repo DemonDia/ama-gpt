@@ -1,15 +1,21 @@
+// ==================== react ====================
 import React, { useState, useEffect } from "react";
-import { auth } from "../firebaseConfig";
-import Assistant from "../components/Main/Assistant";
 import { useNavigate } from "react-router-dom";
-import { onAuthStateChanged } from "firebase/auth";
-import { Grid } from "@mui/material";
 
-import ChatSide from "../components/Chats/ChatSide";
+// ==================== firebase ====================
 import { ref, onValue, push, get, query } from "firebase/database";
-import { db } from "../firebaseConfig";
-import toast, { Toaster } from "react-hot-toast";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth, db } from "../configurations/firebaseConfig";
+
+// ==================== components ====================
 import ChatComponent from "../components/Chats/ChatComponent";
+import ChatSide from "../components/Chats/ChatSide";
+import Assistant from "../components/Main/Assistant";
+
+// ==================== etc ====================
+import { Grid } from "@mui/material";
+import toast, { Toaster } from "react-hot-toast";
+
 function AMAPage() {
     const nav = useNavigate();
     const [currUserId, setCurrUserId] = useState(null);
@@ -17,6 +23,28 @@ function AMAPage() {
     const [currentChat, setCurrentChat] = useState(null);
     const [currMessage, setCurrMessage] = useState("");
 
+    // ==================== helper functions ====================
+    // sends a message (from the assistant/user) to the current chat
+    const sendMessageHelper = async (message, role, chatId) => {
+        const newMessage = {
+            role,
+            content: message,
+            chatId,
+            sentDate: new Date().toISOString(),
+        };
+        await push(ref(db, "message/"), newMessage).then(() => {
+            var messages =
+                currentChat && currentChat.messages ? currentChat.messages : [];
+            messages.push({ role, content: message });
+            setCurrentChat({
+                ...currentChat,
+                messages,
+            });
+        });
+    };
+
+    // ==================== main functions ====================
+    // select existing chat
     const selectChat = async (selectedNewChat) => {
         if (currentChat && currentChat.id == selectedNewChat.id) {
             setCurrentChat(null);
@@ -51,6 +79,8 @@ function AMAPage() {
                 });
         }
     };
+
+    // create new chat if not exist
     const createNewChat = (chatName) => {
         let newChat = {
             chatName: chatName ? chatName : "New Chat",
@@ -81,23 +111,8 @@ function AMAPage() {
 
         toast("Created");
     };
-    const sendMessageHelper = async (message, role, chatId) => {
-        const newMessage = {
-            role,
-            content: message,
-            chatId,
-            sentDate: new Date().toISOString(),
-        };
-        await push(ref(db, "message/"), newMessage).then(() => {
-            var messages =
-                currentChat && currentChat.messages ? currentChat.messages : [];
-            messages.push({ role, content: message });
-            setCurrentChat({
-                ...currentChat,
-                messages,
-            });
-        });
-    };
+
+    // send message via enter
     const sendMessage = (keycode) => {
         if (keycode === "Enter" && currMessage.length > 0) {
             if (!currentChat) {
@@ -112,6 +127,7 @@ function AMAPage() {
         }
     };
 
+    // ==================== useEffect ====================
     useEffect(() => {
         onAuthStateChanged(auth, (user) => {
             if (!user) {
@@ -147,10 +163,10 @@ function AMAPage() {
                 if (data) {
                     if (currentChat) {
                         let messages = [];
-                        Object.keys(data.message).forEach((key) => {
-                            const currRecord = data.message[key];
+                        Object.keys(data).forEach((key) => {
+                            const currRecord = data[key];
                             if (currRecord.chatId == currentChat.id) {
-                                const { role, content } = data.message[key];
+                                const { role, content } = data[key];
                                 const chatMessage = {
                                     role,
                                     content,
@@ -166,8 +182,6 @@ function AMAPage() {
                     }
                 }
             });
-
-        
         });
     }, []);
     return (

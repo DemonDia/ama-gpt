@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { auth } from "../../firebaseConfig";
+import { auth } from "../../configurations/firebaseConfig";
 import AuthenticationForm from "../../components/Authentication/AuthenticationForm";
 import {
     createUserWithEmailAndPassword,

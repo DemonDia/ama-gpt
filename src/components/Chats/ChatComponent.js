@@ -7,6 +7,7 @@ function ChatComponent({
     currentChat,
     currMessage,
     setCurrMessage,
+    loading,
 }) {
     return (
         <Box
@@ -71,6 +72,15 @@ function ChatComponent({
                             <Typography variant={"h6"}>Start a chat</Typography>
                         </Box>
                     </>
+                )}
+                {loading ? (
+                    <>
+                        <ChatBubble
+                            message={{ content: "Typing ...", role: "system" }}
+                        />
+                    </>
+                ) : (
+                    <></>
                 )}
             </Box>
             <Box
