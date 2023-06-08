@@ -127,6 +127,8 @@ function Assistant({ reply, isChatMode, isTyping, currentChat }) {
                                     padding: "1px",
                                     textOverflow: "ellipsis",
                                     overflow: "ellipsis",
+                                    width: "fit-content",
+                                    maxWidth: "100%",
                                     p: 1,
                                 }}
                             >

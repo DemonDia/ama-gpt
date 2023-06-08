@@ -7,7 +7,7 @@ function ChatSide({ chats, selectChat, selectedChat }) {
             sx={{
                 marginTop: "10px",
                 overflowY: "scroll",
-                height: "800px",
+                maxHeight: "800px",
             }}
         >
             <Typography variant={"h5"}>Chats</Typography>
