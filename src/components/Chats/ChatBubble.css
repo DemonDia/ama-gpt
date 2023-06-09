@@ -1,0 +1,11 @@
+.typingMessage {
+    animation: scale 3s infinite;
+}
+
+@keyframes scale {
+    0% {transform: scale(1)}
+    25% {transform: scale(0.9)}
+    50% {transform: scale(0.8)}
+    75% {transform: scale(0.9)}
+    100% {transform: scale(1)}
+ }

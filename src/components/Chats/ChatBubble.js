@@ -1,6 +1,6 @@
 import React from "react";
 import { Box } from "@mui/material";
-function ChatBubble({ message }) {
+function ChatBubble({ message, loading }) {
     const { content, role } = message;
     return (
         <Box
@@ -11,6 +11,7 @@ function ChatBubble({ message }) {
             }}
         >
             <Box
+                className={loading ? "typingMessage" : ""}
                 sx={{
                     color: role == "user" ? "black" : "white",
                     background:

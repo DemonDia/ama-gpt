@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Box, Typography, TextField, FormControl } from "@mui/material";
 import ChatBubble from "./ChatBubble";
 
@@ -9,6 +9,10 @@ function ChatComponent({
     setCurrMessage,
     loading,
 }) {
+    const ref = useRef();
+    useEffect(() => {
+        ref.current?.scrollIntoView();
+    }, [currentChat]);
     return (
         <Box
             sx={{
@@ -76,12 +80,14 @@ function ChatComponent({
                 {loading ? (
                     <>
                         <ChatBubble
+                            loading={loading}
                             message={{ content: "Typing ...", role: "system" }}
                         />
                     </>
                 ) : (
                     <></>
                 )}
+                <Box ref={ref} />
             </Box>
             <Box
                 sx={{

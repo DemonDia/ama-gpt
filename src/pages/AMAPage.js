@@ -159,7 +159,6 @@ function AMAPage() {
                 console.error(error);
             });
 
-        toast("Created");
     };
 
     // send message via enter
@@ -180,7 +179,6 @@ function AMAPage() {
                     currentChat
                 );
             }
-            toast("Message sent");
         }
     };
 

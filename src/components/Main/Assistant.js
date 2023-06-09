@@ -191,6 +191,8 @@ function Assistant({ reply, isChatMode, isTyping, currentChatId }) {
                     {dialogue ? (
                         <>
                             <Box
+                                className={isTyping? "typingMessage" : ""}
+                                
                                 component={"div"}
                                 sx={{
                                     textAlign: "left",
@@ -210,6 +212,7 @@ function Assistant({ reply, isChatMode, isTyping, currentChatId }) {
                                     maxWidth: "100%",
                                     p: 1,
                                 }}
+                                isTyping={isTyping}
                             >
                                 {dialogue}
                             </Box>
