@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
-import AMASama from "../../pictures/luminasama.png";
+// import AMASama from "../../pictures/luminasama.png";
+import AMASama from "../../pictures/assistant.png";
 import { Box, Typography, Grid } from "@mui/material";
 import { toast } from "react-hot-toast";
 import {

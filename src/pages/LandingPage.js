@@ -1,7 +1,9 @@
 import React from "react";
 import logo from "../pictures/AMAGPT copy.png";
-import leftCharacter from "../pictures/Hayate_Stamp.png";
-import rightCharacter from "../pictures/kokoasama.png";
+// import leftCharacter from "../pictures/Hayate_Stamp.png";
+// import rightCharacter from "../pictures/kokoasama.png";
+import leftCharacter from "../pictures/leftchar.png";
+import rightCharacter from "../pictures/rightchar.png";
 import { Typography, Box } from "@mui/material";
 import KeyFeature from "../components/landing/KeyFeature";
 import AMAFeaturePage from "../pictures/AMA.png";
