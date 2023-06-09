@@ -6,6 +6,10 @@ import { useNavigate } from "react-router-dom";
 import { ref, onValue, push, get } from "firebase/database";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../configurations/firebaseConfig";
+import {
+    getChatInfo,
+    getChatMessages,
+} from "../helperfunctions/FirebaseRealtimeDB";
 
 // ==================== components ====================
 import ChatComponent from "../components/Chats/ChatComponent";
@@ -46,40 +50,31 @@ function AMAPage() {
     };
 
     const refreshChat = async (chosenChat) => {
-        const getMessages = ref(db, "message/");
-        await get(getMessages)
-            .then((snapshot) => {
-                let messages = [];
-                if (snapshot.exists()) {
-                    let data = snapshot.val();
-                    Object.keys(data).forEach((key) => {
-                        const currRecord = data[key];
-                        if (currRecord.chatId == chosenChat.id) {
-                            const { role, content } = data[key];
-                            const chatMessage = {
-                                role,
-                                content,
-                            };
-                            messages.push(chatMessage);
-                        }
-                    });
-                }
+        await getChatMessages(
+            chosenChat && chosenChat.id ? chosenChat.id : null
+        ).then((messages) => {
+            console.log("messages", messages);
+            const chatMessages = [];
+            messages.forEach((message) => {
+                const { role, content } = message;
+                const chatMessage = {
+                    role,
+                    content,
+                };
+                chatMessages.push(chatMessage);
                 setCurrentChat({
                     id: chosenChat.id,
                     chatName: chosenChat.chatName,
-                    messages,
+                    messages: chatMessages,
                 });
-            })
-            .catch((error) => {
-                console.error(error);
             });
+        });
     };
 
     // trigger the openAI
     // returns the message from openAI
     const triggerOpenAI = async (chatMessages, selectedChat) => {
         const systemMessage = {
-            //  Explain things like you're talking to a software professional with 5 years of experience.
             role: "system",
             content: "Explain things in layman terms",
         };
@@ -158,7 +153,6 @@ function AMAPage() {
             .catch((error) => {
                 console.error(error);
             });
-
     };
 
     // send message via enter

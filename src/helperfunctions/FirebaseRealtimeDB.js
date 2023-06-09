@@ -14,11 +14,13 @@ export const getChatInfo = async (selectedChatId) => {
 
 // retrieve chat messages of specific chat
 export const getChatMessages = async (selectedChatId) => {
+    console.log(selectedChatId)
     const chatsRef = ref(db, "message/");
     let messages = [];
     await get(chatsRef).then((snapshot) => {
         if (snapshot.exists()) {
             const data = snapshot.val();
+            
             Object.keys(data).forEach((key) => {
                 const { chatId, content, role, sentDate } = data[key];
                 if (selectedChatId === chatId) {
@@ -27,5 +29,6 @@ export const getChatMessages = async (selectedChatId) => {
             });
         }
     });
+    console.log("messages", messages);
     return messages;
 };
