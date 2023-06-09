@@ -250,7 +250,7 @@ function AMAPage() {
                         isChatMode={true}
                         reply={reply}
                         isTyping={isTyping}
-                        currentChat={currentChat}
+                        currentChatId={currentChat ? currentChat.id : null}
                     />
                 </Grid>
                 <Grid item xs={12} sm={12} md={3} lg={2}>

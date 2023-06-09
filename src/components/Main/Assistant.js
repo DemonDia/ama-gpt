@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import AMASama from "../../pictures/luminasama.png";
 import { Box, Typography, Grid } from "@mui/material";
+import { toast } from "react-hot-toast";
 import {
     characterOnClick,
     chatShow,
@@ -10,8 +11,14 @@ import {
 } from "./Dialogues";
 
 import "./assistant.css";
-function Assistant({ reply, isChatMode, isTyping, currentChat }) {
+import {
+    getChatInfo,
+    getChatMessages,
+} from "../../helperfunctions/FirebaseRealtimeDB";
+
+function Assistant({ reply, isChatMode, isTyping, currentChatId }) {
     // ================helper function================
+    // assistant to display message
     const displayMessage = (messageToDislay) => {
         if (ref) {
             ref.current.classList.add("responds");
@@ -23,6 +30,44 @@ function Assistant({ reply, isChatMode, isTyping, currentChat }) {
             }, 2500);
         }
     };
+
+    // ====================== generate json file ======================
+    const generateJsonData = (currentMessages) => {
+        var resultantJsonData = [];
+        for (var i = 0; i < currentMessages.length; i++) {
+            resultantJsonData.push(currentMessages[i]);
+        }
+        return resultantJsonData;
+    };
+    const generateJsonFile = (currentMessages, jsonFileName) => {
+        jsonFileName = jsonFileName || "exported";
+        const data = JSON.stringify(generateJsonData(currentMessages));
+        const blob = new Blob([data], { type: "text/plain" });
+        const e = document.createEvent("MouseEvents"),
+            a = document.createElement("a");
+        a.download = jsonFileName + ".json";
+        a.href = window.URL.createObjectURL(blob);
+        a.dataset.downloadurl = ["text/json", a.download, a.href].join(":");
+        e.initEvent(
+            "click",
+            true,
+            false,
+            window,
+            0,
+            0,
+            0,
+            0,
+            0,
+            false,
+            false,
+            false,
+            false,
+            0,
+            null
+        );
+        a.dispatchEvent(e);
+    };
+
     // ================display random messages when================
     const ref = useRef();
     // change chat
@@ -74,6 +119,23 @@ function Assistant({ reply, isChatMode, isTyping, currentChat }) {
         displayMessage(arr[Math.floor(Math.random() * arr.length)]);
     }, []);
 
+    // export chat
+    const exportChat = async () => {
+        const exportChat = await getChatInfo(currentChatId);
+        const exportedMessages = await getChatMessages(currentChatId);
+        // console.log("exportChat", exportChat);
+        // console.log("exportedMessages", exportedMessages);
+        Promise.allSettled([exportChat, exportedMessages]).then((results) => {
+            const [chatInfo, messages] = results;
+            if (!chatInfo.value || !messages.value) {
+                toast("Error exporting");
+            } else {
+                generateJsonFile(messages.value);
+                toast("Exported!");
+            }
+        });
+    };
+
     return (
         <Box
             sx={{
@@ -105,6 +167,23 @@ function Assistant({ reply, isChatMode, isTyping, currentChat }) {
                             }}
                         >
                             AMA Sama
+                        </Typography>
+                        <Typography
+                            variant={"h6"}
+                            sx={{
+                                textAlign: "center",
+                                background: "#09AC99",
+                                color: "white",
+                                width: "fit-content",
+                                margin: "10px auto",
+                                padding: "5px",
+                                borderRadius: "10px",
+                            }}
+                            onClick={() => {
+                                exportChat();
+                            }}
+                        >
+                            Export Current Chat
                         </Typography>
                     </Box>
                 </Grid>
