@@ -24,11 +24,7 @@ function LandingPage() {
         },
     ];
     return (
-        <Box
-            sx={{
-                height: "200vh",
-            }}
-        >
+        <Box>
             <Box
                 sx={{
                     height: "100vh",

@@ -18,6 +18,8 @@ import AMAPage from "./pages/AMAPage";
 // ====================================component imports====================================
 // ===============general===============
 import Navbar from "./components/general/Navbar";
+import Footer from "./components/general/Footer";
+
 function App() {
     return (
         <div className="App">
@@ -34,6 +36,7 @@ function App() {
                     <Route exact path="/ama" element={<AMAPage />} />
                 </Routes>
             </div>
+            <Footer />
         </div>
     );
 }
