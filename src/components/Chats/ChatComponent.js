@@ -118,7 +118,7 @@ function ChatComponent({
                             setCurrMessage(e.target.value);
                         }}
                         placeholder="Type something"
-                        label="Ask a question..."
+                        label= {isImageGenerator?"Describe the image you want to make":"Ask a question..."}
                         variant="outlined"
                         sx={{
                             width: "100%",

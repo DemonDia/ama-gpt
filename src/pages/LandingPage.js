@@ -6,7 +6,7 @@ import leftCharacter from "../pictures/leftchar.png";
 import rightCharacter from "../pictures/rightchar.png";
 import { Typography, Box } from "@mui/material";
 import KeyFeature from "../components/landing/KeyFeature";
-import AMAFeaturePage from "../pictures/AMA.png";
+// import AMAFeaturePage from "../pictures/AMA.png";
 function LandingPage() {
     const keyFeatures = [
         {
@@ -15,7 +15,7 @@ function LandingPage() {
                 "Need a portable buddy to answer your questions on the go?",
             redirect: "/ama",
             id: "#ama",
-            image: AMAFeaturePage,
+            image: "",
         },
         {
             title: "Image generator",
