@@ -16,7 +16,10 @@ function KeyFeature({ image, title, description, redirect, id }) {
                         minHeight: "400px",
                         height: "90%",
                         background: image ? `url(${image})` : "#05E0AC",
-                        borderRadius:"5px",
+                        backgroundRepeat: "no-repeat",
+                        backgroundSize: "cover",
+                        borderRadius: "5px",
+                        border:"none",
                         margin: "10px auto",
                     }}
                 ></Box>
