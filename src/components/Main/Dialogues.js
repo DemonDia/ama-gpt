@@ -39,4 +39,5 @@ export const imageGeneratorShow = [
 
 export const imageGeneratorComplete = [
     "Heyy, please take a look at the image I have created for you.",
+    "Hope you are satisfied with this <3"
 ];

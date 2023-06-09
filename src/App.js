@@ -14,6 +14,8 @@ import LoginPage from "./pages/authentication/LoginPage";
 
 // ===============AMA page===============
 import AMAPage from "./pages/AMAPage";
+// ===============image generator page===============
+import ImageGenerationPage from "./pages/ImageGenerationPage";
 
 // ====================================component imports====================================
 // ===============general===============
@@ -34,6 +36,12 @@ function App() {
 
                     {/* ama */}
                     <Route exact path="/ama" element={<AMAPage />} />
+                    {/* image generator */}
+                    <Route
+                        exact
+                        path="/image-generator"
+                        element={<ImageGenerationPage />}
+                    />
                 </Routes>
             </div>
             <Footer />

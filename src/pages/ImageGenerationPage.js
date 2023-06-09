@@ -19,8 +19,9 @@ import Assistant from "../components/Main/Assistant";
 // ==================== etc ====================
 import { Grid } from "@mui/material";
 import toast, { Toaster } from "react-hot-toast";
+import { openai } from "../configurations/openAiConfig";
 
-function AMAPage() {
+function ImageGenerationPage() {
     // ==================== states  ====================
     const nav = useNavigate();
     const [currUserId, setCurrUserId] = useState(null);
@@ -74,40 +75,40 @@ function AMAPage() {
 
     // trigger the openAI
     // returns the message from openAI
-    const triggerOpenAI = async (chatMessages, selectedChat) => {
-        const systemMessage = {
-            role: "system",
-            content: "Explain things in layman terms",
-        };
-
-        const apiRequestBody = {
-            model: "gpt-3.5-turbo",
-            messages: [
-                systemMessage, // The system message DEFINES the logic of our chatGPT
-                ...chatMessages, // The messages from our chat with ChatGPT
-            ],
-        };
-
+    const triggerOpenAI = async (userPrompt, selectedChat) => {
+        await sendMessageHelper(userPrompt, "user", selectedChat.id);
         setIsTyping(true);
-        await fetch("https://api.openai.com/v1/chat/completions", {
+        const imageParameters = {
+            prompt: userPrompt,
+            n: parseInt(1),
+            size: "1024x1024",
+        };
+
+        await fetch("https://api.openai.com/v1/images/generations", {
             method: "POST",
             headers: {
                 Authorization: "Bearer " + process.env.REACT_APP_OPENAI_API_KEY,
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify(apiRequestBody),
+            body: JSON.stringify(imageParameters),
         })
             .then((data) => data.json())
             .then(async (data) => {
-                const reply = data.choices[0].message.content;
+                // console.log("result", data);
+                const reply = data.data[0].url;
                 setReply(reply);
                 setIsTyping(false);
                 await sendMessageHelper(reply, "system", selectedChat.id);
             })
             .catch((err) => {
+                console.log(err);
                 setIsTyping(false);
                 toast("Something went wrong, please try again later");
             });
+
+        // const urlData = response.data.data[0].url;
+        // setIsTyping(false);
+        // await sendMessageHelper(reply, "system", selectedChat.id);
     };
 
     // ==================== main functions ====================
@@ -127,7 +128,7 @@ function AMAPage() {
             chatName: chatName ? chatName : "New Chat",
             userId: currUserId,
             createdDate: new Date().toISOString(),
-            type: "ama",
+            type: "image-generation",
         };
         let tempChats = chats;
         tempChats.push(newChat);
@@ -141,13 +142,9 @@ function AMAPage() {
                         chatName: data.chatName,
                         messages: [],
                     };
-                    await sendMessageHelper(chatName, "user", createdChat.key);
+                    // await sendMessageHelper(chatName, "user", createdChat.key);
                     await selectChat(selectedChat);
-                    // await refreshChat(selectedChat);
-                    await triggerOpenAI(
-                        [{ content: chatName, role: "user" }],
-                        selectedChat
-                    );
+                    await triggerOpenAI(chatName, selectedChat);
                     await refreshChat(selectedChat);
                 }
             })
@@ -165,14 +162,8 @@ function AMAPage() {
                 createNewChat(currMessage);
             } else {
                 // message on existing chat
-                await sendMessageHelper(currMessage, "user", currentChat.id);
-                await triggerOpenAI(
-                    [
-                        ...currentChat.messages,
-                        { content: currMessage, role: "user" },
-                    ],
-                    currentChat
-                );
+                // await sendMessageHelper(currMessage, "user", currentChat.id);
+                await triggerOpenAI(currMessage, currentChat);
             }
         }
     };
@@ -193,7 +184,7 @@ function AMAPage() {
                             const currRecord = data[key];
                             if (
                                 currRecord.userId == user.uid &&
-                                currRecord.type == "ama"
+                                currRecord.type == "image-generation"
                             ) {
                                 const { chatName, createdDate } = currRecord;
                                 const chatRecord = {
@@ -204,6 +195,7 @@ function AMAPage() {
                                 userChats.push(chatRecord);
                             }
                         });
+                        console.log("userChats", userChats);
                         setChats(userChats);
                     }
                 }
@@ -234,13 +226,14 @@ function AMAPage() {
             });
         });
     }, []);
+
     return (
         <div>
             <Toaster />
             <Grid container>
                 <Grid item xs={12} sm={12} md={4} lg={6}>
                     <Assistant
-                        isChatMode={true}
+                        isChatMode={false}
                         reply={reply}
                         isTyping={isTyping}
                         currentChatId={currentChat ? currentChat.id : null}
@@ -261,7 +254,7 @@ function AMAPage() {
                         setCurrMessage={setCurrMessage}
                         currentChat={currentChat}
                         loading={isTyping}
-                        isImageGenerator={false}
+                        isImageGenerator={true}
                     />
                 </Grid>
             </Grid>
@@ -269,4 +262,4 @@ function AMAPage() {
     );
 }
 
-export default AMAPage;
+export default ImageGenerationPage;

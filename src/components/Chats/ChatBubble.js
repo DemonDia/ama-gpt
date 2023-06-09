@@ -1,7 +1,9 @@
 import React from "react";
 import { Box } from "@mui/material";
-function ChatBubble({ message, loading }) {
+function ChatBubble({ message, loading, isImageGenerator }) {
     const { content, role } = message;
+    console.log("content", content);
+    console.log("typeof", typeof content);
     return (
         <Box
             sx={{
@@ -24,7 +26,22 @@ function ChatBubble({ message, loading }) {
                     textAlign: "left",
                 }}
             >
-                {content}
+                {isImageGenerator && role == "system" ? (
+                    <>
+                        <img
+                            src={content}
+                            lowsrc={content}
+                            loading="lazy"
+                            style={{
+                                objectFit: "contain",
+                                width: "100%",
+                                height: "100%",
+                            }}
+                        />
+                    </>
+                ) : (
+                    <>{content}</>
+                )}
             </Box>
         </Box>
     );

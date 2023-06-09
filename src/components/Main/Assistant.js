@@ -7,6 +7,7 @@ import {
     chatShow,
     imageGeneratorShow,
     isTypingMessages,
+    imageGeneratorComplete,
     changeChat,
 } from "./Dialogues";
 
@@ -91,7 +92,15 @@ function Assistant({ reply, isChatMode, isTyping, currentChatId }) {
 
     // type out a short portion of the result prompt
     const resultTriggered = (result) => {
-        displayMessage(result);
+        if (!isChatMode) {
+            displayMessage(
+                imageGeneratorComplete[
+                    Math.floor(Math.random() * imageGeneratorComplete.length)
+                ]
+            );
+        } else {
+            displayMessage(result);
+        }
     };
     useEffect(() => {
         resultTriggered(reply);
@@ -191,8 +200,7 @@ function Assistant({ reply, isChatMode, isTyping, currentChatId }) {
                     {dialogue ? (
                         <>
                             <Box
-                                className={isTyping? "typingMessage" : ""}
-                                
+                                className={isTyping ? "typingMessage" : ""}
                                 component={"div"}
                                 sx={{
                                     textAlign: "left",

@@ -8,11 +8,12 @@ function ChatComponent({
     currMessage,
     setCurrMessage,
     loading,
+    isImageGenerator,
 }) {
     const ref = useRef();
-    useEffect(() => {
-        ref.current?.scrollIntoView();
-    }, [currentChat]);
+    // useEffect(() => {
+    //     ref.current?.scrollIntoView();
+    // }, [currentChat]);
     return (
         <Box
             sx={{
@@ -58,7 +59,13 @@ function ChatComponent({
                 {currentChat && currentChat.messages ? (
                     <>
                         {currentChat.messages.map((message, idx) => {
-                            return <ChatBubble key={idx} message={message} />;
+                            return (
+                                <ChatBubble
+                                    key={idx}
+                                    message={message}
+                                    isImageGenerator={isImageGenerator}
+                                />
+                            );
                         })}
                     </>
                 ) : (
@@ -80,6 +87,7 @@ function ChatComponent({
                 {loading ? (
                     <>
                         <ChatBubble
+                            isImageGenerator={false}
                             loading={loading}
                             message={{ content: "Typing ...", role: "system" }}
                         />
