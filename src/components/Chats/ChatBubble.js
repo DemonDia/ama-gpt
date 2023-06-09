@@ -1,9 +1,26 @@
 import React from "react";
-import { Box } from "@mui/material";
+import { Box, Link, Tooltip } from "@mui/material";
 function ChatBubble({ message, loading, isImageGenerator }) {
     const { content, role } = message;
-    console.log("content", content);
-    console.log("typeof", typeof content);
+    const handleDownloadImage = (hrefLink) => {
+        fetch(hrefLink, {
+            method: "GET",
+            headers: {},
+        })
+            .then((response) => {
+                response.arrayBuffer().then(function (buffer) {
+                    const url = window.URL.createObjectURL(new Blob([buffer]));
+                    const link = document.createElement("a");
+                    link.href = url;
+                    link.download = "image.png";
+                    link.click();
+                });
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
+
     return (
         <Box
             sx={{
@@ -27,18 +44,20 @@ function ChatBubble({ message, loading, isImageGenerator }) {
                 }}
             >
                 {isImageGenerator && role == "system" ? (
-                    <>
-                        <img
-                            src={content}
-                            lowsrc={content}
-                            loading="lazy"
-                            style={{
-                                objectFit: "contain",
-                                width: "100%",
-                                height: "100%",
-                            }}
-                        />
-                    </>
+                    <Tooltip title={"Download"}>
+                        <Link href={content}>
+                            <img
+                                src={content}
+                                lowsrc={content}
+                                loading="lazy"
+                                style={{
+                                    objectFit: "contain",
+                                    width: "100%",
+                                    height: "100%",
+                                }}
+                            />
+                        </Link>
+                    </Tooltip>
                 ) : (
                     <>{content}</>
                 )}

@@ -3,13 +3,19 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 // ==================== firebase ====================
-import { ref, onValue, push, get } from "firebase/database";
+import { ref as refDb, onValue, push, get } from "firebase/database";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth, db } from "../configurations/firebaseConfig";
+import { auth, db, storage } from "../configurations/firebaseConfig";
 import {
     getChatInfo,
     getChatMessages,
 } from "../helperfunctions/FirebaseRealtimeDB";
+import {
+    ref as refStorage,
+    uploadBytes,
+    getDownloadURL,
+    uploadString,
+} from "firebase/storage";
 
 // ==================== components ====================
 import ChatComponent from "../components/Chats/ChatComponent";
@@ -19,7 +25,7 @@ import Assistant from "../components/Main/Assistant";
 // ==================== etc ====================
 import { Grid } from "@mui/material";
 import toast, { Toaster } from "react-hot-toast";
-import { openai } from "../configurations/openAiConfig";
+import { v4 as uuidv4 } from 'uuid';
 
 function ImageGenerationPage() {
     // ==================== states  ====================
@@ -40,7 +46,7 @@ function ImageGenerationPage() {
             chatId,
             sentDate: new Date().toISOString(),
         };
-        await push(ref(db, "message/"), newMessage).then(() => {
+        await push(refDb(db, "message/"), newMessage).then(() => {
             var messages =
                 currentChat && currentChat.messages ? currentChat.messages : [];
             messages.push({ role, content: message });
@@ -82,6 +88,7 @@ function ImageGenerationPage() {
             prompt: userPrompt,
             n: parseInt(1),
             size: "1024x1024",
+            response_format: "b64_json",
         };
 
         await fetch("https://api.openai.com/v1/images/generations", {
@@ -94,11 +101,25 @@ function ImageGenerationPage() {
         })
             .then((data) => data.json())
             .then(async (data) => {
-                // console.log("result", data);
-                const reply = data.data[0].url;
-                setReply(reply);
+                console.log("result", data.data);
+                const base64Data = data.data[0].b64_json;
+                const storageRef = refStorage(storage, userPrompt + ".png");
+                await uploadString(storageRef, base64Data, "base64").then(
+                    (snapshot) => {
+                        getDownloadURL(snapshot.ref).then(async (url) => {
+                            setReply(url);
+                            await sendMessageHelper(
+                                url,
+                                "system",
+                                selectedChat.id
+                            );
+                        });
+                        // console.log("Uploaded a blob or file!");
+                        // console.log(snapshot);
+                    }
+                );
+
                 setIsTyping(false);
-                await sendMessageHelper(reply, "system", selectedChat.id);
             })
             .catch((err) => {
                 console.log(err);
@@ -132,7 +153,7 @@ function ImageGenerationPage() {
         };
         let tempChats = chats;
         tempChats.push(newChat);
-        const createdChat = push(ref(db, "chat/"), newChat);
+        const createdChat = push(refDb(db, "chat/"), newChat);
         get(createdChat)
             .then(async (snapshot) => {
                 if (snapshot.exists()) {
@@ -175,7 +196,7 @@ function ImageGenerationPage() {
                 nav("/login");
             }
             setCurrUserId(user.uid);
-            onValue(ref(db, "chat/"), (snapshot) => {
+            onValue(refDb(db, "chat/"), (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
                     if (data) {
@@ -200,7 +221,7 @@ function ImageGenerationPage() {
                     }
                 }
             });
-            onValue(ref(db, "message/"), (snapshot) => {
+            onValue(refDb(db, "message/"), (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
                     if (currentChat) {
