@@ -175,58 +175,61 @@ function AMAPage() {
     // ==================== useEffect ====================
     useEffect(() => {
         onAuthStateChanged(auth, (user) => {
+            console.log(user);
             if (!user) {
                 nav("/login");
-            }
-            setCurrUserId(user.uid);
-            onValue(ref(db, "chat/"), (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
+            } else {
+                setCurrUserId(user.uid);
+                onValue(ref(db, "chat/"), (snapshot) => {
+                    const data = snapshot.val();
                     if (data) {
-                        let userChats = [];
-                        Object.keys(data).forEach((key) => {
-                            const currRecord = data[key];
-                            if (
-                                currRecord.userId == user.uid &&
-                                currRecord.type == "ama"
-                            ) {
-                                const { chatName, createdDate } = currRecord;
-                                const chatRecord = {
-                                    chatName,
-                                    createdDate,
-                                    id: key,
-                                };
-                                userChats.push(chatRecord);
-                            }
-                        });
-                        setChats(userChats);
+                        if (data) {
+                            let userChats = [];
+                            Object.keys(data).forEach((key) => {
+                                const currRecord = data[key];
+                                if (
+                                    currRecord.userId == user.uid &&
+                                    currRecord.type == "ama"
+                                ) {
+                                    const { chatName, createdDate } =
+                                        currRecord;
+                                    const chatRecord = {
+                                        chatName,
+                                        createdDate,
+                                        id: key,
+                                    };
+                                    userChats.push(chatRecord);
+                                }
+                            });
+                            setChats(userChats);
+                        }
                     }
-                }
-            });
-            onValue(ref(db, "message/"), (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    if (currentChat) {
-                        let messages = [];
-                        Object.keys(data).forEach((key) => {
-                            const currRecord = data[key];
-                            if (currRecord.chatId == currentChat.id) {
-                                const { role, content } = data[key];
-                                const chatMessage = {
-                                    role,
-                                    content,
-                                };
-                                messages.push(chatMessage);
-                            }
-                        });
-                        setCurrentChat({
-                            id: currentChat.id,
-                            chatName: currentChat.chatName,
-                            messages,
-                        });
+                });
+                onValue(ref(db, "message/"), (snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        if (currentChat) {
+                            let messages = [];
+                            Object.keys(data).forEach((key) => {
+                                const currRecord = data[key];
+                                if (currRecord.chatId == currentChat.id) {
+                                    const { role, content } = data[key];
+                                    const chatMessage = {
+                                        role,
+                                        content,
+                                    };
+                                    messages.push(chatMessage);
+                                }
+                            });
+                            setCurrentChat({
+                                id: currentChat.id,
+                                chatName: currentChat.chatName,
+                                messages,
+                            });
+                        }
                     }
-                }
-            });
+                });
+            }
         });
     }, []);
     return (
