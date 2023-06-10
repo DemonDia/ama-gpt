@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 // show profile if logged in
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "../../configurations/firebaseConfig";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
     AppBar,
     Box,
@@ -38,7 +38,10 @@ const pages = [
 ];
 
 function Navbar(props) {
+    const location = useLocation();
+    console.log(location.pathname);
     const { window } = props;
+    const [hover, setHover] = useState(false);
     const [currUser, setCurrUser] = useState(null);
     const [mobileOpen, setMobileOpen] = useState(false);
     const handleDrawerToggle = () => {
@@ -69,10 +72,7 @@ function Navbar(props) {
     const ref = useRef(null);
 
     const drawer = (
-        <Box
-            onClick={handleDrawerToggle}
-            sx={{ textAlign: "center", boxShadow: "none" }}
-        >
+        <Box onClick={handleDrawerToggle}>
             <Typography variant="h6" sx={{ my: 2 }}>
                 AMA-GPT
             </Typography>
@@ -198,11 +198,28 @@ function Navbar(props) {
         { label: "Logout", handleClick: handleLogout },
     ];
     return (
-        <Box sx={{ display: "flex" }}>
+        <Box
+            sx={{
+                display: "flex",
+                textAlign: "center",
+                boxShadow: "none",
+                // opacity: hover ? "1" : "0.7",
+            }}
+            onMouseEnter={() => {
+                setHover(true);
+            }}
+            onMouseLeave={() => {
+                setHover(false);
+            }}
+        >
             <Toaster />
             <AppBar
                 component="nav"
-                sx={{ background: "white", color: "black" }}
+                sx={{
+                    background: hover ? "white" : "rgba(255, 255, 255, 0.4)",
+                    color: "black",
+                    transition: "background 0.5s",
+                }}
             >
                 <Toolbar>
                     <IconButton
@@ -235,9 +252,29 @@ function Navbar(props) {
                                 >
                                     <Button
                                         sx={{
-                                            color: "black",
+                                            color:
+                                                location &&
+                                                location.pathname == to
+                                                    ? "#089786"
+                                                    : "black",
+                                            fontWeight:
+                                                location &&
+                                                location.pathname == to
+                                                    ? "bold"
+                                                    : "normal",
+                                            textDecoration:
+                                                location &&
+                                                location.pathname == to
+                                                    ? "underline"
+                                                    : "none",
+                                            scale:
+                                                location &&
+                                                location.pathname == to
+                                                    ? "1.1"
+                                                    : "1",
                                             background: "none",
                                             float: "left",
+                                            transition: "all 0.5s",
                                             "&:hover": {
                                                 color: "#089786",
                                                 textDecoration: "underline",
