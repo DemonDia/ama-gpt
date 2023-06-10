@@ -6,10 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { ref, onValue, push, get } from "firebase/database";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../configurations/firebaseConfig";
-import {
-    getChatInfo,
-    getChatMessages,
-} from "../helperfunctions/FirebaseRealtimeDB";
+import { getChatMessages } from "../helperfunctions/FirebaseRealtimeDB";
 
 // ==================== components ====================
 import ChatComponent from "../components/Chats/ChatComponent";
@@ -54,7 +51,6 @@ function AMAPage() {
         await getChatMessages(
             chosenChat && chosenChat.id ? chosenChat.id : null
         ).then((messages) => {
-            console.log("messages", messages);
             const chatMessages = [];
             messages.forEach((message) => {
                 const { role, content } = message;
@@ -143,7 +139,6 @@ function AMAPage() {
                     };
                     await sendMessageHelper(chatName, "user", createdChat.key);
                     await selectChat(selectedChat);
-                    // await refreshChat(selectedChat);
                     await triggerOpenAI(
                         [{ content: chatName, role: "user" }],
                         selectedChat
@@ -238,15 +233,13 @@ function AMAPage() {
         <div>
             <Toaster />
             <Grid container>
-                <Grid item xs={12} sm={12} md={4} lg={6}>
+                <Grid item xs={6} md={3}>
                     <Assistant
                         isChatMode={true}
                         reply={reply}
                         isTyping={isTyping}
                         currentChatId={currentChat ? currentChat.id : null}
                     />
-                </Grid>
-                <Grid item xs={12} sm={12} md={3} lg={2}>
                     <ChatSide
                         chats={chats}
                         selectChat={selectChat}
@@ -254,7 +247,7 @@ function AMAPage() {
                         selectedChat={currentChat}
                     />
                 </Grid>
-                <Grid item xs={12} sm={12} md={5} lg={4}>
+                <Grid item xs={6} md={9}>
                     <ChatComponent
                         sendMessage={sendMessage}
                         currMessage={currMessage}

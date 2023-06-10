@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { Box, Typography, TextField, FormControl } from "@mui/material";
 import ChatBubble from "./ChatBubble";
+import Assistant from "../Main/Assistant";
 
 function ChatComponent({
     sendMessage,
@@ -20,7 +21,7 @@ function ChatComponent({
                 marginTop: "10px",
                 width: "100%",
                 boxShadow: "0px 0px 4px rgba(0, 0, 0, 0.4)",
-                maxHeight: "800px",
+                // height: "100vh",
             }}
         >
             <Box
@@ -50,10 +51,11 @@ function ChatComponent({
                     background: "rgba(65, 65, 65, 0.1)",
                     boxShadow: "none",
                     overflowY: "scroll",
-                    height: "600px",
+                    height: "80vh",
                     display:
                         currentChat && currentChat.messages ? "block" : "grid",
                     justifyContent: "middle",
+                    transition: "opacity 0.5s",
                 }}
             >
                 {currentChat && currentChat.messages ? (
@@ -95,7 +97,7 @@ function ChatComponent({
                 ) : (
                     <></>
                 )}
-                <Box ref={ref} />
+                {/* <Box ref={ref} /> */}
             </Box>
             <Box
                 sx={{
@@ -118,7 +120,11 @@ function ChatComponent({
                             setCurrMessage(e.target.value);
                         }}
                         placeholder="Type something"
-                        label= {isImageGenerator?"Describe the image you want to make":"Ask a question..."}
+                        label={
+                            isImageGenerator
+                                ? "Describe the image you want to make"
+                                : "Ask a question..."
+                        }
                         variant="outlined"
                         sx={{
                             width: "100%",

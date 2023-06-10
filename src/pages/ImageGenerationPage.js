@@ -6,13 +6,9 @@ import { useNavigate } from "react-router-dom";
 import { ref as refDb, onValue, push, get } from "firebase/database";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db, storage } from "../configurations/firebaseConfig";
-import {
-    getChatInfo,
-    getChatMessages,
-} from "../helperfunctions/FirebaseRealtimeDB";
+import { getChatMessages } from "../helperfunctions/FirebaseRealtimeDB";
 import {
     ref as refStorage,
-    uploadBytes,
     getDownloadURL,
     uploadString,
 } from "firebase/storage";
@@ -25,7 +21,7 @@ import Assistant from "../components/Main/Assistant";
 // ==================== etc ====================
 import { Grid } from "@mui/material";
 import toast, { Toaster } from "react-hot-toast";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 
 function ImageGenerationPage() {
     // ==================== states  ====================
@@ -61,7 +57,6 @@ function ImageGenerationPage() {
         await getChatMessages(
             chosenChat && chosenChat.id ? chosenChat.id : null
         ).then((messages) => {
-            console.log("messages", messages);
             const chatMessages = [];
             messages.forEach((message) => {
                 const { role, content } = message;
@@ -104,32 +99,28 @@ function ImageGenerationPage() {
                 console.log("result", data.data);
                 const base64Data = data.data[0].b64_json;
                 const storageRef = refStorage(storage, userPrompt + ".png");
-                await uploadString(storageRef, base64Data, "base64").then(
-                    (snapshot) => {
-                        getDownloadURL(snapshot.ref).then(async (url) => {
+                await uploadString(storageRef, base64Data, "base64")
+                    .then(async (snapshot) => {
+                        await getDownloadURL(snapshot.ref).then(async (url) => {
                             setReply(url);
+                            setIsTyping(false);
                             await sendMessageHelper(
                                 url,
                                 "system",
                                 selectedChat.id
                             );
                         });
-                        // console.log("Uploaded a blob or file!");
-                        // console.log(snapshot);
-                    }
-                );
-
-                setIsTyping(false);
+                    })
+                    .catch((err) => {
+                        setIsTyping(false);
+                        console.log(err);
+                    });
             })
             .catch((err) => {
                 console.log(err);
                 setIsTyping(false);
                 toast("Something went wrong, please try again later");
             });
-
-        // const urlData = response.data.data[0].url;
-        // setIsTyping(false);
-        // await sendMessageHelper(reply, "system", selectedChat.id);
     };
 
     // ==================== main functions ====================
@@ -163,7 +154,6 @@ function ImageGenerationPage() {
                         chatName: data.chatName,
                         messages: [],
                     };
-                    // await sendMessageHelper(chatName, "user", createdChat.key);
                     await selectChat(selectedChat);
                     await triggerOpenAI(chatName, selectedChat);
                     await refreshChat(selectedChat);
@@ -252,15 +242,13 @@ function ImageGenerationPage() {
         <div>
             <Toaster />
             <Grid container>
-                <Grid item xs={12} sm={12} md={4} lg={6}>
+                <Grid item xs={6} md={3}>
                     <Assistant
                         isChatMode={false}
                         reply={reply}
                         isTyping={isTyping}
                         currentChatId={currentChat ? currentChat.id : null}
                     />
-                </Grid>
-                <Grid item xs={12} sm={12} md={3} lg={2}>
                     <ChatSide
                         chats={chats}
                         selectChat={selectChat}
@@ -268,7 +256,7 @@ function ImageGenerationPage() {
                         selectedChat={currentChat}
                     />
                 </Grid>
-                <Grid item xs={12} sm={12} md={5} lg={4}>
+                <Grid item xs={6} md={9}>
                     <ChatComponent
                         sendMessage={sendMessage}
                         currMessage={currMessage}

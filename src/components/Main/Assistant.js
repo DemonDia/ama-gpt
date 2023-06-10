@@ -9,7 +9,7 @@ import {
     imageGeneratorShow,
     isTypingMessages,
     imageGeneratorComplete,
-    changeChat,
+    answerComplete,
 } from "./Dialogues";
 
 import "./assistant.css";
@@ -19,6 +19,8 @@ import {
 } from "../../helperfunctions/FirebaseRealtimeDB";
 
 function Assistant({ reply, isChatMode, isTyping, currentChatId }) {
+    // ================ states ================
+    const [hover, setHover] = useState(false);
     // ================helper function================
     // assistant to display message
     const displayMessage = (messageToDislay) => {
@@ -72,15 +74,6 @@ function Assistant({ reply, isChatMode, isTyping, currentChatId }) {
 
     // ================display random messages when================
     const ref = useRef();
-    // change chat
-    // const chatChange = () => {
-    //     displayMessage(
-    //         changeChat[Math.floor(Math.random() * changeChat.length)]
-    //     );
-    // };
-    // useEffect(() => {
-    //     chatChange();
-    // }, [currentChat]);
 
     // clicked
     const clickedCharacter = () => {
@@ -92,19 +85,13 @@ function Assistant({ reply, isChatMode, isTyping, currentChatId }) {
     };
 
     // type out a short portion of the result prompt
-    const resultTriggered = (result) => {
-        if (!isChatMode) {
-            displayMessage(
-                imageGeneratorComplete[
-                    Math.floor(Math.random() * imageGeneratorComplete.length)
-                ]
-            );
-        } else {
-            displayMessage(result);
-        }
+    const resultTriggered = () => {
+        const arr = isChatMode ? answerComplete : imageGeneratorComplete;
+        displayMessage(arr[Math.floor(Math.random() * arr.length)]);
+
     };
     useEffect(() => {
-        resultTriggered(reply);
+        resultTriggered();
     }, [reply]);
 
     // if its typing
@@ -149,88 +136,101 @@ function Assistant({ reply, isChatMode, isTyping, currentChatId }) {
     return (
         <Box
             sx={{
-                margin: "10px",
+                margin: "10px auto",
+                height: "40vh",
             }}
+            onMouseEnter={() => setHover(true)}
+            onMouseLeave={() => setHover(false)}
         >
-            <Grid container>
-                <Grid item xs={6}>
-                    {" "}
-                    <img
-                        ref={ref}
-                        className="assistant"
-                        src={AMASama}
-                        onClick={() => {
-                            clickedCharacter();
-                        }}
-                    />
-                    <Box sx={{ width: "auto" }}>
-                        <Typography
-                            variant={"h6"}
+            <Box sx={{ height: "10%", width: "100%" }}>
+                {/* <Grid item xs={6}> */}
+                {dialogue ? (
+                    <>
+                        <Box
+                            className={isTyping ? "typingMessage" : ""}
+                            component={"div"}
                             sx={{
-                                textAlign: "center",
+                                textAlign: "left",
+                                height: "auto",
+                                maxHeight:
+                                    ref && ref.current.offsetHeight > 0
+                                        ? ref.current.offsetHeight
+                                        : "100%",
+                                color: "white",
                                 background: "#08C5AE",
-                                color: "white",
-                                width: "fit-content",
-                                margin: "10px auto",
-                                padding: "5px",
                                 borderRadius: "10px",
-                            }}
-                        >
-                            AMA Sama
-                        </Typography>
-                        <Typography
-                            variant={"h6"}
-                            sx={{
-                                textAlign: "center",
-                                background: "#09AC99",
-                                color: "white",
+                                margin: "1px",
+                                padding: "1px",
                                 width: "fit-content",
-                                margin: "10px auto",
-                                padding: "5px",
-                                borderRadius: "10px",
+                                maxWidth: "100%",
+                                p: 1,
+                                position: "relative",
+                                zIndex: 2,
+                                opacity: hover ? 1 : 0.7,
+                                transition: "opacity 0.5s",
                             }}
-                            onClick={() => {
-                                exportChat();
-                            }}
+                            isTyping={isTyping}
                         >
-                            Export Current Chat
-                        </Typography>
-                    </Box>
-                </Grid>
-                <Grid item xs={6}>
-                    {dialogue ? (
-                        <>
-                            <Box
-                                className={isTyping ? "typingMessage" : ""}
-                                component={"div"}
-                                sx={{
-                                    textAlign: "left",
-                                    height: "auto",
-                                    maxHeight:
-                                        ref && ref.current.offsetHeight > 0
-                                            ? ref.current.offsetHeight
-                                            : "100px",
-                                    color: "white",
-                                    background: "#08C5AE",
-                                    borderRadius: "10px",
-                                    margin: "1px",
-                                    padding: "1px",
-                                    textOverflow: "ellipsis",
-                                    overflow: "ellipsis",
-                                    width: "fit-content",
-                                    maxWidth: "100%",
-                                    p: 1,
-                                }}
-                                isTyping={isTyping}
-                            >
-                                {dialogue}
-                            </Box>
-                        </>
-                    ) : (
-                        <></>
-                    )}
-                </Grid>
-            </Grid>
+                            {dialogue}
+                        </Box>
+                    </>
+                ) : (
+                    <></>
+                )}
+                {/* </Grid> */}
+            </Box>
+            <Box sx={{ height: "90%" }}>
+                {/* <Grid item xs={6}> */}{" "}
+                <img
+                    ref={ref}
+                    className="assistant"
+                    src={AMASama}
+                    onClick={() => {
+                        clickedCharacter();
+                    }}
+                    sx={{
+                        width: "100%",
+                        margin: "auto",
+                        zIndex: -1,
+                        position: "absolute",
+                    }}
+                />
+                <Box sx={{ width: "auto" }}>
+                    <Typography
+                        variant={"subtitle1"}
+                        sx={{
+                            textAlign: "center",
+                            // alignSelf:"center",
+                            background: "#08C5AE",
+                            color: "white",
+                            width: "fit-content",
+                            margin: "10px auto",
+                            padding: "5px",
+                            borderRadius: "10px",
+                        }}
+                    >
+                        AMA Sama
+                    </Typography>
+                    <Typography
+                        variant={"subtitle2"}
+                        sx={{
+                            textAlign: "center",
+                            background: "#09AC99",
+                            color: "white",
+                            width: "fit-content",
+                            margin: "10px auto",
+                            padding: "5px",
+                            borderRadius: "10px",
+                        }}
+                        onClick={() => {
+                            exportChat();
+                        }}
+                    >
+                        Export
+                    </Typography>
+                </Box>
+                {/* </Grid> */}
+            </Box>
         </Box>
     );
 }
