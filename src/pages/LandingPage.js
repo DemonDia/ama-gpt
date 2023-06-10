@@ -7,7 +7,8 @@ import rightCharacter from "../pictures/rightchar.png";
 import { Typography, Box, Link } from "@mui/material";
 import KeyFeature from "../components/landing/KeyFeature";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
-// import AMAFeaturePage from "../pictures/AMA.png";
+import AMAPic from "../pictures/AMA.png";
+import ImageGeneratorPic from "../pictures/ImageGenerator.png";
 function LandingPage() {
     const keyFeatures = [
         {
@@ -16,14 +17,14 @@ function LandingPage() {
                 "Need a portable buddy to answer your questions on the go?",
             redirect: "/ama",
             id: "#ama",
-            image: "",
+            image: AMAPic,
         },
         {
             title: "Image generator",
             description: "Need any image any time? For any purpose?",
             redirect: "/image-generator",
             id: "#image-generator",
-            image: "",
+            image: ImageGeneratorPic,
         },
     ];
 
@@ -62,27 +63,26 @@ function LandingPage() {
                         },
                     }}
                 > */}
-                    <ArrowDownwardIcon
-                        onClick={() => {
-                            goDown();
-                        }}
-                        sx={{
-                            fontSize: "50px",
-                            margin: "30px auto",
-                            color: "black",
-                            "&:hover": {
-                                color: "#08C5AE",
-                                cursor: "pointer",
-                            },
-                            animation:"bounce 1s infinite",
-                            "@keyframes bounce": {  
-                                "0%": { transform: "translateY(0)" },
-                                "50%": { transform: "translateY(-10px)" },
-                                "100%": { transform: "translateY(0)" },
-
-                            }
-                        }}
-                    />
+                <ArrowDownwardIcon
+                    onClick={() => {
+                        goDown();
+                    }}
+                    sx={{
+                        fontSize: "50px",
+                        margin: "30px auto",
+                        color: "black",
+                        "&:hover": {
+                            color: "#08C5AE",
+                            cursor: "pointer",
+                        },
+                        animation: "bounce 1s infinite",
+                        "@keyframes bounce": {
+                            "0%": { transform: "translateY(0)" },
+                            "50%": { transform: "translateY(-10px)" },
+                            "100%": { transform: "translateY(0)" },
+                        },
+                    }}
+                />
                 {/* </Link> */}
                 {/* <Typography
                     variant="h4"
