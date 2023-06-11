@@ -14,7 +14,6 @@ export const getChatInfo = async (selectedChatId) => {
 
 // retrieve chat messages of specific chat
 export const getChatMessages = async (selectedChatId) => {
-    console.log(selectedChatId)
     const chatsRef = ref(db, "message/");
     let messages = [];
     await get(chatsRef).then((snapshot) => {
@@ -29,6 +28,5 @@ export const getChatMessages = async (selectedChatId) => {
             });
         }
     });
-    console.log("messages", messages);
     return messages;
 };

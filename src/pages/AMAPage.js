@@ -175,7 +175,6 @@ function AMAPage() {
     // ==================== useEffect ====================
     useEffect(() => {
         onAuthStateChanged(auth, (user) => {
-            console.log(user);
             if (!user) {
                 nav("/login");
             } else {

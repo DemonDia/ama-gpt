@@ -120,8 +120,6 @@ function Assistant({ reply, isChatMode, isTyping, currentChatId }) {
     const exportChat = async () => {
         const exportChat = await getChatInfo(currentChatId);
         const exportedMessages = await getChatMessages(currentChatId);
-        // console.log("exportChat", exportChat);
-        // console.log("exportedMessages", exportedMessages);
         Promise.allSettled([exportChat, exportedMessages]).then((results) => {
             const [chatInfo, messages] = results;
             if (!chatInfo.value || !messages.value) {

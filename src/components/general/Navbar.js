@@ -39,7 +39,6 @@ const pages = [
 
 function Navbar(props) {
     const location = useLocation();
-    console.log(location.pathname);
     const { window } = props;
     const [hover, setHover] = useState(false);
     const [currUser, setCurrUser] = useState(null);

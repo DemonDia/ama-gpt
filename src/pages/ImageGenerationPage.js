@@ -96,7 +96,6 @@ function ImageGenerationPage() {
         })
             .then((data) => data.json())
             .then(async (data) => {
-                console.log("result", data.data);
                 const base64Data = data.data[0].b64_json;
                 const storageRef = refStorage(storage, userPrompt + ".png");
                 await uploadString(storageRef, base64Data, "base64")
@@ -113,11 +112,10 @@ function ImageGenerationPage() {
                     })
                     .catch((err) => {
                         setIsTyping(false);
-                        console.log(err);
+                        toast("Something went wrong, please try again later");
                     });
             })
             .catch((err) => {
-                console.log(err);
                 setIsTyping(false);
                 toast("Something went wrong, please try again later");
             });
@@ -207,7 +205,6 @@ function ImageGenerationPage() {
                                     userChats.push(chatRecord);
                                 }
                             });
-                            console.log("userChats", userChats);
                             setChats(userChats);
                         }
                     }
